@@ -238,6 +238,9 @@
 				<button class="mode-pill" data-m="orbit">Orbit</button>
 				<button class="mode-pill" data-m="scatter">Scatter</button>
 				<button class="mode-pill" data-m="assemble">Assemble</button>
+				<button class="mode-pill" data-m="that-person">
+					That Person
+				</button>
 			</div>
 			<div class="hint" id="hint-text">
 				Move your hand to control — then capture
@@ -298,6 +301,45 @@
 						}, 2000);
 					});
 
+					const poseNet = ml5.poseNet(video, () =>
+						console.log("PoseNet active"),
+					);
+					poseNet.on("pose", (results) => {
+						if (results && results.length > 0) {
+							const pose = results[0].pose;
+							let bx = pose.nose.x;
+							let by = pose.nose.y;
+							let pts = 1;
+							if (
+								pose.leftShoulder &&
+								pose.leftShoulder.confidence > 0.2
+							) {
+								bx += pose.leftShoulder.x;
+								by += pose.leftShoulder.y;
+								pts++;
+							}
+							if (
+								pose.rightShoulder &&
+								pose.rightShoulder.confidence > 0.2
+							) {
+								bx += pose.rightShoulder.x;
+								by += pose.rightShoulder.y;
+								pts++;
+							}
+							bx /= pts;
+							by /= pts;
+							let mappedX =
+								(bx / video.width) * window.innerWidth;
+							let mappedY =
+								(by / video.height) * window.innerHeight;
+							if (typeof bodyX !== "undefined") {
+								bodyX +=
+									(window.innerWidth - mappedX - bodyX) *
+									0.15;
+								bodyY += (mappedY - bodyY) * 0.15;
+							}
+						}
+					});
 					handpose.on("predict", (results) => {
 						if (results && results.length > 0) {
 							// Get index finger tip
@@ -431,6 +473,8 @@
 			}
 
 			// ─── MODE ─────────────────────────────────────────────────
+			let bodyX = window.innerWidth / 2,
+				bodyY = window.innerHeight / 2;
 			let mode = "follow",
 				showDepth = true,
 				t = 0;
@@ -488,6 +532,25 @@
 								(repel * dy) / dist,
 						};
 					});
+				}
+				if (mode === "that-person") {
+					const r1 = 180 + 30 * Math.sin(t * 1.5);
+					const r2 = 220 + 40 * Math.cos(t * 1.2);
+					const r3 = 260 + 30 * Math.sin(t * 1.8);
+					return [
+						{
+							x: bodyX + r1 * Math.cos(t * 1.2),
+							y: bodyY + r1 * Math.sin(t * 1.2),
+						},
+						{
+							x: bodyX + r2 * Math.cos(t * 1.5 + 2),
+							y: bodyY + r2 * Math.sin(t * 1.5 + 2),
+						},
+						{
+							x: bodyX + r3 * Math.cos(t * 1.1 + 4),
+							y: bodyY + r3 * Math.sin(t * 1.1 + 4),
+						},
+					];
 				}
 				if (mode === "assemble") {
 					const sc = Math.min(W, H) / 700;
@@ -600,6 +663,7 @@
 				orbit: "The three elements orbit your hand",
 				scatter: "Move close to push the elements away",
 				assemble: "Elements form the logo — point to pull them",
+				"that-person": "The aura surrounds you continuously",
 			};
 			document.querySelectorAll(".mode-pill").forEach((b) => {
 				b.addEventListener("click", () => {
