@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tongji 120 · Interactive Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --red:  #E8190C;
+  --blue: #1A5CBE;
+  --gold: #E8C340;
+  --bg:   #0b0b0b;
+  --line: #202020;
+}
+html, body { height:100%; }
+body {
+  background: var(--bg);
+  color: #e8e8e8;
+  font-family: 'Space Mono', monospace;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* Custom cursor */
+#cursor {
+  position: fixed;
+  width: 28px; height: 28px;
+  border: 1px solid rgba(255,255,255,0.6);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%,-50%);
+  transition: transform 0.08s, background 0.2s;
+  mix-blend-mode: difference;
+}
+#cursor.hover {
+  transform: translate(-50%,-50%) scale(2.2);
+  background: rgba(255,255,255,0.08);
+}
+
+/* Header */
+header {
+  padding: 36px 48px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 28px;
+}
+.wordmark {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.wordmark .num {
+  font-size: 48px;
+  font-weight: 700;
+  letter-spacing: -2px;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--red) 0%, var(--blue) 55%, var(--gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.wordmark .sub {
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  line-height: 1.7;
+}
+.header-right {
+  text-align: right;
+  font-size: 8px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  line-height: 2;
+}
+
+/* Hero */
+.hero {
+  padding: 72px 48px 56px;
+  border-bottom: 1px solid var(--line);
+  position: relative;
+  overflow: hidden;
+}
+.hero-label {
+  font-size: 8px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 20px;
+}
+.hero h2 {
+  font-size: clamp(28px, 4vw, 52px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  max-width: 700px;
+}
+.hero h2 em {
+  font-style: italic;
+  color: rgba(255,255,255,0.35);
+}
+.hero p {
+  margin-top: 22px;
+  font-size: 10px;
+  line-height: 2;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.4);
+  max-width: 460px;
+}
+
+/* Decorative shapes */
+.deco-shapes {
+  position: absolute;
+  right: 80px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 260px;
+  height: 180px;
+  pointer-events: none;
+}
+.deco-shapes .s1, .deco-shapes .s2, .deco-shapes .s3 {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.12;
+  filter: blur(1px);
+  animation: float 6s ease-in-out infinite;
+}
+.deco-shapes .s1 { width:90px;height:90px; background:var(--red);  top:20px; left:0;   animation-delay:0s; }
+.deco-shapes .s2 { width:110px;height:110px;background:var(--blue); top:50px; left:60px;animation-delay:1s; }
+.deco-shapes .s3 { width:80px;height:80px; background:var(--gold); top:10px; left:150px;animation-delay:2s; }
+@keyframes float {
+  0%,100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-12px) rotate(6deg); }
+}
+
+/* Cards */
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  flex: 1;
+}
+.card {
+  padding: 48px;
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.card:last-child { border-right: none; }
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.card.poster::before { background: radial-gradient(ellipse at 30% 50%, rgba(232,25,12,0.06), transparent 70%); }
+.card.booth::before  { background: radial-gradient(ellipse at 70% 50%, rgba(26,92,190,0.07), transparent 70%); }
+.card:hover::before  { opacity: 1; }
+.card:hover .card-arrow { transform: translate(4px,-4px); }
+
+.card-num {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.2);
+  text-transform: uppercase;
+}
+.card-icon {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.dot { width:14px;height:14px;border-radius:50%; }
+.d-red  { background:var(--red); }
+.d-blue { background:var(--blue); }
+.d-gold { background:var(--gold); }
+.card h3 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+.card p {
+  font-size: 9px;
+  line-height: 2;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.38);
+  max-width: 320px;
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto;
+}
+.tag {
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  font-size: 7px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+}
+.card-arrow {
+  position: absolute;
+  right: 48px;
+  bottom: 48px;
+  font-size: 20px;
+  color: rgba(255,255,255,0.15);
+  transition: transform 0.2s, color 0.2s;
+}
+.card:hover .card-arrow { color: rgba(255,255,255,0.5); }
+
+/* Footer */
+footer {
+  border-top: 1px solid var(--line);
+  padding: 18px 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 8px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.15);
+}
+footer a { color: inherit; text-decoration: none; }
+footer a:hover { color: rgba(255,255,255,0.4); }
+
+@media (max-width: 700px) {
+  header { padding: 24px; }
+  .hero { padding: 40px 24px 32px; }
+  .deco-shapes { display: none; }
+  .cards { grid-template-columns: 1fr; }
+  .card { padding: 32px 24px; border-right: none; border-bottom: 1px solid var(--line); }
+  .card:last-child { border-bottom: none; }
+  footer { padding: 16px 24px; flex-direction: column; gap: 8px; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+
+<header>
+  <div class="wordmark">
+    <div class="num">120</div>
+    <div class="sub">同济大学建校纪念日<br>Tongji University</div>
+  </div>
+  <div class="header-right">
+    Interactive Installations<br>
+    Spring 2026<br>
+    Interaction Design
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-label">Three Forces · One Direction</div>
+  <h2>Generative Brand<br><em>Explorations</em></h2>
+  <p>Two interactive installations for Tongji University's 120th anniversary. Each tool transforms the brand identity into a living, participatory experience — for campus events, exhibitions, and celebrations.</p>
+  <div class="deco-shapes">
+    <div class="s1"></div>
+    <div class="s2"></div>
+    <div class="s3"></div>
+  </div>
+</div>
+
+<div class="cards">
+
+  <a class="card poster" href="tongji_poster_machine.html">
+    <div class="card-num">Installation 01</div>
+    <div class="card-icon">
+      <div class="dot d-red"></div>
+      <div class="dot d-blue"></div>
+      <div class="dot d-gold"></div>
+    </div>
+    <h3>Poster<br>Generator</h3>
+    <p>Tune rotation, layering, depth, and color — generate a unique anniversary poster and take it with you. Every configuration produces a one-of-a-kind composition.</p>
+    <div class="tags">
+      <span class="tag">Generative</span>
+      <span class="tag">Touchscreen</span>
+      <span class="tag">Print-ready</span>
+      <span class="tag">Downloadable</span>
+    </div>
+    <span class="card-arrow">↗</span>
+  </a>
+
+  <a class="card booth" href="tongji_fotobooth.html">
+    <div class="card-num">Installation 02</div>
+    <div class="card-icon">
+      <div class="dot d-blue"></div>
+      <div class="dot d-red"></div>
+      <div class="dot d-gold"></div>
+    </div>
+    <h3>Photo<br>Booth</h3>
+    <p>The three logo elements follow your touch across a live camera feed. Strike a pose, trigger the countdown, and capture your personal anniversary moment.</p>
+    <div class="tags">
+      <span class="tag">Camera</span>
+      <span class="tag">Touch</span>
+      <span class="tag">Interactive</span>
+      <span class="tag">Photo</span>
+    </div>
+    <span class="card-arrow">↗</span>
+  </a>
+
+</div>
+
+<footer>
+  <span>Tongji University · 120th Anniversary · 2025–2026</span>
+  <span>Jonas Wienberg · Zhang Xinyue · Adrien · Angela Li</span>
+</footer>
+
+<script>
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top  = e.clientY + 'px';
+});
+document.querySelectorAll('a, button').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+  el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+});
+</script>
+</body>
+</html>
