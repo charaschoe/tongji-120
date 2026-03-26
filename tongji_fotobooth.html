@@ -5,7 +5,11 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Tongji 120 · Fotobooth</title>
 		<script>
-			window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+			window.va =
+				window.va ||
+				function () {
+					(window.vaq = window.vaq || []).push(arguments);
+				};
 		</script>
 		<script defer src="/_vercel/insights/script.js"></script>
 		<link
@@ -16,7 +20,11 @@
 
 		<!-- Vercel Speed Insights -->
 		<script>
-			window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+			window.si =
+				window.si ||
+				function () {
+					(window.siq = window.siq || []).push(arguments);
+				};
 		</script>
 		<script defer src="/_vercel/speed-insights/script.js"></script>
 		<style>
@@ -242,11 +250,15 @@
 		</div>
 
 		<div id="btm-bar">
-                        <div class="row" style="margin-bottom: 10px;">
-                                <button class="mode-pill" data-logo="deconstructed">Feenschweif (Einzelteile)</button>
-                                <button class="mode-pill on" data-logo="unified">Logo (Ganzes Logo)</button>
-                        </div>
-                        <div class="row">
+			<div class="row" style="margin-bottom: 10px">
+				<button class="mode-pill" data-logo="deconstructed">
+					Feenschweif (Einzelteile)
+				</button>
+				<button class="mode-pill on" data-logo="unified">
+					Logo (Ganzes Logo)
+				</button>
+			</div>
+			<div class="row">
 				<button class="mode-pill on" data-m="follow">Follow</button>
 				<button class="mode-pill" data-m="trail">Trail</button>
 				<button class="mode-pill" data-m="orbit">Orbit</button>
@@ -668,10 +680,8 @@
 								y: centerTarget.y + groupOffsets[i].y,
 							}
 						: tgts[i];
-					E[i].vx =
-						(E[i].vx + (target.x - E[i].x) * STIFF[i]) * DAMP;
-					E[i].vy =
-						(E[i].vy + (target.y - E[i].y) * STIFF[i]) * DAMP;
+					E[i].vx = (E[i].vx + (target.x - E[i].x) * STIFF[i]) * DAMP;
+					E[i].vy = (E[i].vy + (target.y - E[i].y) * STIFF[i]) * DAMP;
 					E[i].x += E[i].vx;
 					E[i].y += E[i].vy;
 					if (!isUnified) E[i].angle += 0.007 + i * 0.003;
@@ -746,10 +756,12 @@
 					b.classList.add("on");
 					logoMode = b.dataset.logo;
 					if (logoMode === "deconstructed") {
-						const trailBtn = document.querySelector('[data-m="trail"]');
+						const trailBtn =
+							document.querySelector('[data-m="trail"]');
 						if (trailBtn) trailBtn.click();
 					} else {
-						const followBtn = document.querySelector('[data-m="follow"]');
+						const followBtn =
+							document.querySelector('[data-m="follow"]');
 						if (followBtn) followBtn.click();
 					}
 				});
