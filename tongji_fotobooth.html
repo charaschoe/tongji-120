@@ -242,7 +242,11 @@
 		</div>
 
 		<div id="btm-bar">
-			<div class="row">
+                        <div class="row" style="margin-bottom: 10px;">
+                                <button class="mode-pill" data-logo="deconstructed">Feenschweif (Einzelteile)</button>
+                                <button class="mode-pill on" data-logo="unified">Logo (Ganzes Logo)</button>
+                        </div>
+                        <div class="row">
 				<button class="mode-pill on" data-m="follow">Follow</button>
 				<button class="mode-pill" data-m="trail">Trail</button>
 				<button class="mode-pill" data-m="orbit">Orbit</button>
@@ -485,9 +489,10 @@
 			// ─── MODE ─────────────────────────────────────────────────
 			let bodyX = window.innerWidth / 2,
 				bodyY = window.innerHeight / 2;
-			let mode = "follow",
-				showDepth = true,
-				t = 0;
+			let logoMode = "unified";
+                        let mode = "follow",
+                                showDepth = true,
+                                t = 0;
 			const STIFF = [0.1, 0.065, 0.045],
 				DAMP = 0.8;
 
@@ -675,11 +680,24 @@
 				assemble: "Elements form the logo — point to pull them",
 				"that-person": "The aura surrounds you continuously",
 			};
-			document.querySelectorAll(".mode-pill").forEach((b) => {
-				b.addEventListener("click", () => {
-					document
-						.querySelectorAll(".mode-pill")
-						.forEach((x) => x.classList.remove("on"));
+			document.querySelectorAll("[data-logo]").forEach((b) => {
+                                b.addEventListener("click", () => {
+                                        document.querySelectorAll("[data-logo]").forEach((x) => x.classList.remove("on"));
+                                        b.classList.add("on");
+                                        logoMode = b.dataset.logo;
+                                        if (logoMode === 'deconstructed') {
+                                            const trailBtn = document.querySelector('[data-m="trail"]');
+                                            if (trailBtn) trailBtn.click();
+                                        } else {
+                                            const followBtn = document.querySelector('[data-m="follow"]');
+                                            if (followBtn) followBtn.click();
+                                        }
+                                });
+                        });
+
+                        document.querySelectorAll("[data-m]").forEach((b) => {
+                                b.addEventListener("click", () => {
+                                        document.querySelectorAll("[data-m]").forEach((x) => x.classList.remove("on"));
 					b.classList.add("on");
 					mode = b.dataset.m;
 					document.getElementById("hint-text").textContent =
