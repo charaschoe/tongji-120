@@ -455,6 +455,13 @@ document.querySelectorAll('[data-mode]').forEach(b => {
     P.mode = b.dataset.mode;
   });
 });
+document.querySelectorAll('[data-logo]').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('[data-logo]').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    P.logo = b.dataset.logo;
+  });
+});
 document.querySelectorAll('[data-bg]').forEach(b => {
   b.addEventListener('click', () => {
     document.querySelectorAll('[data-bg]').forEach(x => x.classList.remove('on'));
