@@ -1,353 +1,704 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tongji 120 · Fotobooth</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<style>
-* { margin:0; padding:0; box-sizing:border-box; }
-:root { --red:#E8190C; --blue:#1A5CBE; --gold:#E8C340; }
-html,body { width:100%; height:100%; overflow:hidden; background:#000; }
-body { font-family:'Space Mono',monospace; color:#fff; cursor:none; }
-canvas#bg { position:fixed; inset:0; z-index:0; }
-canvas#ui { position:fixed; inset:0; z-index:5; pointer-events:none; }
-#top-bar {
-  position:fixed; top:0; left:0; right:0; z-index:20;
-  padding:20px 28px 40px;
-  background:linear-gradient(to bottom,rgba(0,0,0,.7),transparent);
-  display:flex; justify-content:space-between; align-items:flex-start;
-  pointer-events:none;
-}
-.tl h1 { font-size:11px; letter-spacing:4px; text-transform:uppercase; color:var(--gold); }
-.tl p  { font-size:8px;  letter-spacing:2px; color:rgba(255,255,255,.35); margin-top:4px; }
-.tr    { font-size:8px;  letter-spacing:2px; text-transform:uppercase;
-         color:rgba(255,255,255,.25); text-align:right; line-height:1.9; }
-#btm-bar {
-  position:fixed; bottom:0; left:0; right:0; z-index:20;
-  padding:40px 28px 28px;
-  background:linear-gradient(to top,rgba(0,0,0,.75),transparent);
-  display:flex; flex-direction:column; align-items:center; gap:12px;
-}
-.hint { font-size:8px; letter-spacing:2.5px; text-transform:uppercase;
-        color:rgba(255,255,255,.35); text-align:center; }
-.row  { display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:center; }
-.mode-pill {
-  padding:5px 14px; border:1px solid rgba(255,255,255,.18); background:transparent;
-  color:rgba(255,255,255,.38); font-family:'Space Mono',monospace;
-  font-size:7px; letter-spacing:1.5px; text-transform:uppercase; cursor:pointer; transition:all .15s;
-}
-.mode-pill.on { border-color:var(--gold); color:var(--gold); }
-.btn {
-  padding:10px 20px; border:1px solid rgba(255,255,255,.2); background:rgba(0,0,0,.3);
-  color:rgba(255,255,255,.6); font-family:'Space Mono',monospace;
-  font-size:8px; letter-spacing:2px; text-transform:uppercase; cursor:pointer; transition:all .15s;
-  backdrop-filter:blur(6px);
-}
-.btn:hover { border-color:rgba(255,255,255,.6); color:#fff; }
-#cap-btn { border-color:var(--gold); color:var(--gold); padding:12px 28px; font-size:9px; }
-#cap-btn:hover { background:var(--gold); color:#000; }
-#flash { position:fixed; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:80;
-         transition:opacity .05s; }
-#flash.snap { opacity:1; }
-#flash.fade { opacity:0; transition:opacity .6s; }
-#countdown { position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
-             pointer-events:none; z-index:60; }
-#cn { font-size:200px; font-weight:700; color:var(--gold); opacity:0;
-      transform:scale(1.4); transition:all .12s;
-      text-shadow:0 0 80px rgba(232,195,64,.5); }
-#cn.show { opacity:1; transform:scale(1); }
-#prev-wrap { position:fixed; inset:0; background:rgba(0,0,0,.9);
-             display:none; flex-direction:column; align-items:center; justify-content:center;
-             gap:20px; z-index:90; backdrop-filter:blur(14px); }
-#prev-wrap.show { display:flex; }
-#prev-img { max-width:80vw; max-height:70vh;
-            border:1px solid rgba(255,255,255,.12); box-shadow:0 24px 80px rgba(0,0,0,.9); }
-.prev-btns { display:flex; gap:10px; }
-</style>
-</head>
-<body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Tongji 120 · Fotobooth</title>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap"
+			rel="stylesheet"
+		/>
+		<script src="https://unpkg.com/ml5@0.12.2/dist/ml5.min.js"></script>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+			:root {
+				--red: #e8190c;
+				--blue: #1a5cbe;
+				--gold: #e8c340;
+			}
+			html,
+			body {
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+				background: #000;
+			}
+			body {
+				font-family: "Space Mono", monospace;
+				color: #fff;
+				cursor: none;
+			}
+			canvas#bg {
+				position: fixed;
+				inset: 0;
+				z-index: 0;
+			}
+			canvas#ui {
+				position: fixed;
+				inset: 0;
+				z-index: 5;
+				pointer-events: none;
+			}
+			#top-bar {
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				z-index: 20;
+				padding: 20px 28px 40px;
+				background: linear-gradient(
+					to bottom,
+					rgba(0, 0, 0, 0.7),
+					transparent
+				);
+				display: flex;
+				justify-content: space-between;
+				align-items: flex-start;
+				pointer-events: none;
+			}
+			.tl h1 {
+				font-size: 11px;
+				letter-spacing: 4px;
+				text-transform: uppercase;
+				color: var(--gold);
+			}
+			.tl p {
+				font-size: 8px;
+				letter-spacing: 2px;
+				color: rgba(255, 255, 255, 0.35);
+				margin-top: 4px;
+			}
+			.tr {
+				font-size: 8px;
+				letter-spacing: 2px;
+				text-transform: uppercase;
+				color: rgba(255, 255, 255, 0.25);
+				text-align: right;
+				line-height: 1.9;
+			}
+			#btm-bar {
+				position: fixed;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				z-index: 20;
+				padding: 40px 28px 28px;
+				background: linear-gradient(
+					to top,
+					rgba(0, 0, 0, 0.75),
+					transparent
+				);
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 12px;
+			}
+			.hint {
+				font-size: 8px;
+				letter-spacing: 2.5px;
+				text-transform: uppercase;
+				color: rgba(255, 255, 255, 0.35);
+				text-align: center;
+			}
+			.row {
+				display: flex;
+				gap: 10px;
+				align-items: center;
+				flex-wrap: wrap;
+				justify-content: center;
+			}
+			.mode-pill {
+				padding: 5px 14px;
+				border: 1px solid rgba(255, 255, 255, 0.18);
+				background: transparent;
+				color: rgba(255, 255, 255, 0.38);
+				font-family: "Space Mono", monospace;
+				font-size: 7px;
+				letter-spacing: 1.5px;
+				text-transform: uppercase;
+				cursor: pointer;
+				transition: all 0.15s;
+			}
+			.mode-pill.on {
+				border-color: var(--gold);
+				color: var(--gold);
+			}
+			.btn {
+				padding: 10px 20px;
+				border: 1px solid rgba(255, 255, 255, 0.2);
+				background: rgba(0, 0, 0, 0.3);
+				color: rgba(255, 255, 255, 0.6);
+				font-family: "Space Mono", monospace;
+				font-size: 8px;
+				letter-spacing: 2px;
+				text-transform: uppercase;
+				cursor: pointer;
+				transition: all 0.15s;
+				backdrop-filter: blur(6px);
+			}
+			.btn:hover {
+				border-color: rgba(255, 255, 255, 0.6);
+				color: #fff;
+			}
+			#cap-btn {
+				border-color: var(--gold);
+				color: var(--gold);
+				padding: 12px 28px;
+				font-size: 9px;
+			}
+			#cap-btn:hover {
+				background: var(--gold);
+				color: #000;
+			}
+			#flash {
+				position: fixed;
+				inset: 0;
+				background: #fff;
+				opacity: 0;
+				pointer-events: none;
+				z-index: 80;
+				transition: opacity 0.05s;
+			}
+			#flash.snap {
+				opacity: 1;
+			}
+			#flash.fade {
+				opacity: 0;
+				transition: opacity 0.6s;
+			}
+			#countdown {
+				position: fixed;
+				inset: 0;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				pointer-events: none;
+				z-index: 60;
+			}
+			#cn {
+				font-size: 200px;
+				font-weight: 700;
+				color: var(--gold);
+				opacity: 0;
+				transform: scale(1.4);
+				transition: all 0.12s;
+				text-shadow: 0 0 80px rgba(232, 195, 64, 0.5);
+			}
+			#cn.show {
+				opacity: 1;
+				transform: scale(1);
+			}
+			#prev-wrap {
+				position: fixed;
+				inset: 0;
+				background: rgba(0, 0, 0, 0.9);
+				display: none;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				gap: 20px;
+				z-index: 90;
+				backdrop-filter: blur(14px);
+			}
+			#prev-wrap.show {
+				display: flex;
+			}
+			#prev-img {
+				max-width: 80vw;
+				max-height: 70vh;
+				border: 1px solid rgba(255, 255, 255, 0.12);
+				box-shadow: 0 24px 80px rgba(0, 0, 0, 0.9);
+			}
+			.prev-btns {
+				display: flex;
+				gap: 10px;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas id="bg"></canvas>
+		<canvas id="ui"></canvas>
 
-<canvas id="bg"></canvas>
-<canvas id="ui"></canvas>
+		<div id="top-bar">
+			<div class="tl">
+				<h1>Tongji 120 · Fotobooth</h1>
+				<p>同济大学建校纪念日 — Motion &amp; Capture</p>
+			</div>
+			<div class="tr" id="cam-status">Camera loading…</div>
+		</div>
 
-<div id="top-bar">
-  <div class="tl">
-    <h1>Tongji 120 · Fotobooth</h1>
-    <p>同济大学建校纪念日 — Touch &amp; Capture</p>
-  </div>
-  <div class="tr" id="cam-status">Camera loading…</div>
-</div>
+		<div id="btm-bar">
+			<div class="row">
+				<button class="mode-pill on" data-m="follow">Follow</button>
+				<button class="mode-pill" data-m="trail">Trail</button>
+				<button class="mode-pill" data-m="orbit">Orbit</button>
+				<button class="mode-pill" data-m="scatter">Scatter</button>
+				<button class="mode-pill" data-m="assemble">Assemble</button>
+			</div>
+			<div class="hint" id="hint-text">
+				Move your hand to control — then capture
+			</div>
+			<div class="row">
+				<button class="btn" id="depth-btn">Depth: ON</button>
+				<button class="btn" id="cap-btn">⬤ &nbsp;Capture</button>
+				<button class="btn" id="back-btn">← Back</button>
+			</div>
+		</div>
 
-<div id="btm-bar">
-  <div class="row">
-    <button class="mode-pill on" data-m="follow">Follow</button>
-    <button class="mode-pill" data-m="trail">Trail</button>
-    <button class="mode-pill" data-m="orbit">Orbit</button>
-    <button class="mode-pill" data-m="scatter">Scatter</button>
-    <button class="mode-pill" data-m="assemble">Assemble</button>
-  </div>
-  <div class="hint" id="hint-text">Move your finger / mouse — then capture</div>
-  <div class="row">
-    <button class="btn" id="depth-btn">Depth: ON</button>
-    <button class="btn" id="cap-btn">⬤ &nbsp;Capture</button>
-    <button class="btn" id="back-btn">← Back</button>
-  </div>
-</div>
+		<div id="flash"></div>
+		<div id="countdown"><div id="cn">3</div></div>
+		<div id="prev-wrap">
+			<img id="prev-img" src="" alt="" />
+			<div class="prev-btns">
+				<button class="btn" id="dl-btn">↓ Download</button>
+				<button class="btn" id="close-btn">✕ Close</button>
+			</div>
+		</div>
 
-<div id="flash"></div>
-<div id="countdown"><div id="cn">3</div></div>
-<div id="prev-wrap">
-  <img id="prev-img" src="" alt="">
-  <div class="prev-btns">
-    <button class="btn" id="dl-btn">↓ Download</button>
-    <button class="btn" id="close-btn">✕ Close</button>
-  </div>
-</div>
+		<script>
+			const bgCnv = document.getElementById("bg");
+			const bgCtx = bgCnv.getContext("2d");
+			const uiCnv = document.getElementById("ui");
+			const uiCtx = uiCnv.getContext("2d");
 
-<script>
-const bgCnv = document.getElementById('bg');
-const bgCtx = bgCnv.getContext('2d');
-const uiCnv = document.getElementById('ui');
-const uiCtx = uiCnv.getContext('2d');
+			function resize() {
+				bgCnv.width = uiCnv.width = window.innerWidth;
+				bgCnv.height = uiCnv.height = window.innerHeight;
+			}
+			resize();
+			window.addEventListener("resize", resize);
 
-function resize() {
-  bgCnv.width = uiCnv.width = window.innerWidth;
-  bgCnv.height = uiCnv.height = window.innerHeight;
-}
-resize();
-window.addEventListener('resize', resize);
+			// ─── WEBCAM ───────────────────────────────────────────────
+			const video = document.createElement("video");
+			video.autoplay = true;
+			video.playsInline = true;
+			video.muted = true;
+			video.width = 1280;
+			video.height = 720;
+			const camStatus = document.getElementById("cam-status");
 
-// ─── WEBCAM ───────────────────────────────────────────────
-const video = document.createElement('video');
-video.autoplay = true; video.playsInline = true; video.muted = true;
-const camStatus = document.getElementById('cam-status');
+			navigator.mediaDevices
+				.getUserMedia({
+					video: { facingMode: "user", width: 1280, height: 720 },
+				})
+				.then((stream) => {
+					video.srcObject = stream;
+					video.play();
+					camStatus.textContent = "Loading tracking...";
 
-navigator.mediaDevices.getUserMedia({ video:{ facingMode:'user', width:1280, height:720 }})
-  .then(stream => {
-    video.srcObject = stream; video.play();
-    camStatus.textContent = 'Camera active';
-    setTimeout(()=>{ camStatus.style.opacity='0.3'; }, 2000);
-  })
-  .catch(()=>{
-    camStatus.textContent = 'No camera — demo mode';
-    camStatus.style.color = 'rgba(255,120,60,.7)';
-  });
+					// Initialize ML5 Handpose
+					const handpose = ml5.handpose(video, () => {
+						camStatus.textContent = "Tracking active";
+						setTimeout(() => {
+							camStatus.style.opacity = "0.3";
+						}, 2000);
+					});
 
-// ─── SHAPES ───────────────────────────────────────────────
-function drawOne(ctx) {
-  ctx.beginPath();
-  ctx.moveTo(8,-88); ctx.bezierCurveTo(24,-85,30,-58,26,-24);
-  ctx.bezierCurveTo(22,10,20,42,22,84); ctx.lineTo(-10,84);
-  ctx.bezierCurveTo(-16,42,-18,8,-20,-24); ctx.bezierCurveTo(-22,-58,-14,-84,8,-88);
-  ctx.closePath();
-  ctx.moveTo(-4,-62); ctx.bezierCurveTo(-16,-70,-36,-66,-44,-52);
-  ctx.bezierCurveTo(-40,-40,-22,-43,-8,-45); ctx.closePath();
-}
-function drawTwo(ctx) {
-  ctx.beginPath();
-  ctx.moveTo(-30,-40); ctx.bezierCurveTo(-32,-85,8,-95,30,-68);
-  ctx.bezierCurveTo(52,-42,36,-8,14,14); ctx.bezierCurveTo(-4,32,-16,50,0,64);
-  ctx.lineTo(44,64); ctx.lineTo(44,84); ctx.lineTo(-44,84); ctx.lineTo(-44,62);
-  ctx.bezierCurveTo(-28,46,-14,28,6,10); ctx.bezierCurveTo(20,-6,18,-30,4,-44);
-  ctx.bezierCurveTo(-10,-58,-26,-54,-30,-40); ctx.closePath();
-}
-function drawCircle(ctx,r){ ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.closePath(); }
+					handpose.on("predict", (results) => {
+						if (results && results.length > 0) {
+							// Get index finger tip
+							const point = results[0].annotations.indexFinger[3];
+							const px = point[0];
+							const py = point[1];
 
-function depthColors(hex, n) {
-  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
-  return Array.from({length:n},(_,i)=>{
-    const f = 0.12 + (i/Math.max(n-1,1))*0.88;
-    return `rgb(${~~(r*f)},${~~(g*f)},${~~(b*f)})`;
-  });
-}
-function drawLayered(ctx, fn, cx, cy, sc, L, D, angle, hex) {
-  const cols = depthColors(hex, L);
-  const dx = Math.cos(angle), dy = -Math.sin(angle)*0.45;
-  for (let i=L-1; i>=0; i--) {
-    ctx.save(); ctx.translate(cx+dx*i*D, cy+dy*i*D); ctx.scale(sc,sc);
-    ctx.fillStyle = cols[i]; fn(ctx); ctx.fill(); ctx.restore();
-  }
-}
+							// Map to canvas
+							let mappedX =
+								(px / video.width) * window.innerWidth;
+							let mappedY =
+								(py / video.height) * window.innerHeight;
 
-// ─── ELEMENTS ─────────────────────────────────────────────
-const E = [
-  { x:0,y:0,vx:0,vy:0,angle:0,hex:'#E8190C',fn:drawOne },
-  { x:0,y:0,vx:0,vy:0,angle:0,hex:'#1A5CBE',fn:drawTwo },
-  { x:0,y:0,vx:0,vy:0,angle:0,hex:'#E8C340',fn:(c)=>drawCircle(c,68) }
-];
-const TRAIL_MAX = 45;
-let trail = [];
+							// Video is mirrored on canvas, so mirror X
+							if (typeof setPtr === "function") {
+								setPtr(window.innerWidth - mappedX, mappedY);
+							}
+						}
+					});
+				})
+				.catch(() => {
+					camStatus.textContent = "No camera — demo mode";
+					camStatus.style.color = "rgba(255,120,60,.7)";
+				});
 
-let mx=window.innerWidth/2, my=window.innerHeight/2;
-E[0].x=window.innerWidth*.35; E[0].y=window.innerHeight*.5;
-E[1].x=window.innerWidth*.5;  E[1].y=window.innerHeight*.5;
-E[2].x=window.innerWidth*.65; E[2].y=window.innerHeight*.42;
+			// ─── SHAPES ───────────────────────────────────────────────
+			function drawOne(ctx) {
+				ctx.beginPath();
+				ctx.moveTo(8, -88);
+				ctx.bezierCurveTo(24, -85, 30, -58, 26, -24);
+				ctx.bezierCurveTo(22, 10, 20, 42, 22, 84);
+				ctx.lineTo(-10, 84);
+				ctx.bezierCurveTo(-16, 42, -18, 8, -20, -24);
+				ctx.bezierCurveTo(-22, -58, -14, -84, 8, -88);
+				ctx.closePath();
+				ctx.moveTo(-4, -62);
+				ctx.bezierCurveTo(-16, -70, -36, -66, -44, -52);
+				ctx.bezierCurveTo(-40, -40, -22, -43, -8, -45);
+				ctx.closePath();
+			}
+			function drawTwo(ctx) {
+				ctx.beginPath();
+				ctx.moveTo(-30, -40);
+				ctx.bezierCurveTo(-32, -85, 8, -95, 30, -68);
+				ctx.bezierCurveTo(52, -42, 36, -8, 14, 14);
+				ctx.bezierCurveTo(-4, 32, -16, 50, 0, 64);
+				ctx.lineTo(44, 64);
+				ctx.lineTo(44, 84);
+				ctx.lineTo(-44, 84);
+				ctx.lineTo(-44, 62);
+				ctx.bezierCurveTo(-28, 46, -14, 28, 6, 10);
+				ctx.bezierCurveTo(20, -6, 18, -30, 4, -44);
+				ctx.bezierCurveTo(-10, -58, -26, -54, -30, -40);
+				ctx.closePath();
+			}
+			function drawCircle(ctx, r) {
+				ctx.beginPath();
+				ctx.arc(0, 0, r, 0, Math.PI * 2);
+				ctx.closePath();
+			}
 
-function setPtr(x,y){ mx=x; my=y; }
-document.addEventListener('mousemove',e=>setPtr(e.clientX,e.clientY));
-document.addEventListener('touchmove',e=>{ e.preventDefault();
-  setPtr(e.touches[0].clientX,e.touches[0].clientY); },{passive:false});
-document.addEventListener('touchstart',e=>setPtr(e.touches[0].clientX,e.touches[0].clientY));
+			function depthColors(hex, n) {
+				const r = parseInt(hex.slice(1, 3), 16),
+					g = parseInt(hex.slice(3, 5), 16),
+					b = parseInt(hex.slice(5, 7), 16);
+				return Array.from({ length: n }, (_, i) => {
+					const f = 0.12 + (i / Math.max(n - 1, 1)) * 0.88;
+					return `rgb(${~~(r * f)},${~~(g * f)},${~~(b * f)})`;
+				});
+			}
+			function drawLayered(ctx, fn, cx, cy, sc, L, D, angle, hex) {
+				const cols = depthColors(hex, L);
+				const dx = Math.cos(angle),
+					dy = -Math.sin(angle) * 0.45;
+				for (let i = L - 1; i >= 0; i--) {
+					ctx.save();
+					ctx.translate(cx + dx * i * D, cy + dy * i * D);
+					ctx.scale(sc, sc);
+					ctx.fillStyle = cols[i];
+					fn(ctx);
+					ctx.fill();
+					ctx.restore();
+				}
+			}
 
-// ─── MODE ─────────────────────────────────────────────────
-let mode='follow', showDepth=true, t=0;
-const STIFF=[0.10,0.065,0.045], DAMP=0.80;
+			// ─── ELEMENTS ─────────────────────────────────────────────
+			const E = [
+				{
+					x: 0,
+					y: 0,
+					vx: 0,
+					vy: 0,
+					angle: 0,
+					hex: "#E8190C",
+					fn: drawOne,
+				},
+				{
+					x: 0,
+					y: 0,
+					vx: 0,
+					vy: 0,
+					angle: 0,
+					hex: "#1A5CBE",
+					fn: drawTwo,
+				},
+				{
+					x: 0,
+					y: 0,
+					vx: 0,
+					vy: 0,
+					angle: 0,
+					hex: "#E8C340",
+					fn: (c) => drawCircle(c, 68),
+				},
+			];
+			const TRAIL_MAX = 45;
+			let trail = [];
 
-function getTargets(W,H){
-  const cx=W/2, cy=H/2;
-  if(mode==='follow') return [{x:mx,y:my},{x:mx,y:my},{x:mx,y:my}];
-  if(mode==='trail'){
-    const idxs=[0,~~(trail.length*.35),~~(trail.length*.7)];
-    return idxs.map(i=>trail[i]||{x:mx,y:my});
-  }
-  if(mode==='orbit'){
-    const r=100+30*Math.sin(t*.5);
-    return [
-      {x:mx+r*Math.cos(t),    y:my+r*Math.sin(t)*.5},
-      {x:mx+r*Math.cos(t+2.09),y:my+r*Math.sin(t+2.09)*.5},
-      {x:mx+r*Math.cos(t+4.18),y:my+r*Math.sin(t+4.18)*.5-40}
-    ];
-  }
-  if(mode==='scatter'){
-    return E.map((e,i)=>{
-      const dx=e.x-mx, dy=e.y-my, dist=Math.sqrt(dx*dx+dy*dy)||1;
-      const repel=Math.max(0,200-dist)/200*160;
-      return {
-        x:cx+200*Math.sin(t*(.3+i*.15)+i*2)+(repel*dx/dist),
-        y:cy+130*Math.cos(t*(.25+i*.1)+i*1.5)+(repel*dy/dist)
-      };
-    });
-  }
-  if(mode==='assemble'){
-    const sc=Math.min(W,H)/700;
-    const base=[{x:cx-132*sc,y:cy},{x:cx+30*sc,y:cy},{x:cx+190*sc,y:cy-22*sc}];
-    return base.map(b=>{
-      const dx=mx-b.x,dy=my-b.y,dist=Math.sqrt(dx*dx+dy*dy)||1;
-      const pull=Math.max(0,180-dist)/180*32;
-      return {x:b.x+dx/dist*pull,y:b.y+dy/dist*pull};
-    });
-  }
-  return E.map(e=>({x:e.x,y:e.y}));
-}
+			let mx = window.innerWidth / 2,
+				my = window.innerHeight / 2;
+			E[0].x = window.innerWidth * 0.35;
+			E[0].y = window.innerHeight * 0.5;
+			E[1].x = window.innerWidth * 0.5;
+			E[1].y = window.innerHeight * 0.5;
+			E[2].x = window.innerWidth * 0.65;
+			E[2].y = window.innerHeight * 0.42;
 
-// ─── LOOP ─────────────────────────────────────────────────
-function loop(){
-  t+=0.016;
-  const W=bgCnv.width, H=bgCnv.height;
-  trail.unshift({x:mx,y:my});
-  if(trail.length>TRAIL_MAX) trail.pop();
+			function setPtr(x, y) {
+				mx = x;
+				my = y;
+			}
 
-  // Draw video (mirrored)
-  bgCtx.save();
-  bgCtx.translate(W,0); bgCtx.scale(-1,1);
-  if(video.readyState>=2){
-    bgCtx.drawImage(video,0,0,W,H);
-  } else {
-    bgCtx.fillStyle='#111'; bgCtx.fillRect(0,0,W,H);
-  }
-  bgCtx.restore();
+			// ─── MODE ─────────────────────────────────────────────────
+			let mode = "follow",
+				showDepth = true,
+				t = 0;
+			const STIFF = [0.1, 0.065, 0.045],
+				DAMP = 0.8;
 
-  // Vignette
-  const gr=bgCtx.createRadialGradient(W/2,H/2,H*.28,W/2,H/2,H*.75);
-  gr.addColorStop(0,'rgba(0,0,0,0)'); gr.addColorStop(1,'rgba(0,0,0,0.55)');
-  bgCtx.fillStyle=gr; bgCtx.fillRect(0,0,W,H);
+			function getTargets(W, H) {
+				const cx = W / 2,
+					cy = H / 2;
+				if (mode === "follow")
+					return [
+						{ x: mx, y: my },
+						{ x: mx, y: my },
+						{ x: mx, y: my },
+					];
+				if (mode === "trail") {
+					const idxs = [
+						0,
+						~~(trail.length * 0.35),
+						~~(trail.length * 0.7),
+					];
+					return idxs.map((i) => trail[i] || { x: mx, y: my });
+				}
+				if (mode === "orbit") {
+					const r = 100 + 30 * Math.sin(t * 0.5);
+					return [
+						{
+							x: mx + r * Math.cos(t),
+							y: my + r * Math.sin(t) * 0.5,
+						},
+						{
+							x: mx + r * Math.cos(t + 2.09),
+							y: my + r * Math.sin(t + 2.09) * 0.5,
+						},
+						{
+							x: mx + r * Math.cos(t + 4.18),
+							y: my + r * Math.sin(t + 4.18) * 0.5 - 40,
+						},
+					];
+				}
+				if (mode === "scatter") {
+					return E.map((e, i) => {
+						const dx = e.x - mx,
+							dy = e.y - my,
+							dist = Math.sqrt(dx * dx + dy * dy) || 1;
+						const repel = (Math.max(0, 200 - dist) / 200) * 160;
+						return {
+							x:
+								cx +
+								200 * Math.sin(t * (0.3 + i * 0.15) + i * 2) +
+								(repel * dx) / dist,
+							y:
+								cy +
+								130 * Math.cos(t * (0.25 + i * 0.1) + i * 1.5) +
+								(repel * dy) / dist,
+						};
+					});
+				}
+				if (mode === "assemble") {
+					const sc = Math.min(W, H) / 700;
+					const base = [
+						{ x: cx - 132 * sc, y: cy },
+						{ x: cx + 30 * sc, y: cy },
+						{ x: cx + 190 * sc, y: cy - 22 * sc },
+					];
+					return base.map((b) => {
+						const dx = mx - b.x,
+							dy = my - b.y,
+							dist = Math.sqrt(dx * dx + dy * dy) || 1;
+						const pull = (Math.max(0, 180 - dist) / 180) * 32;
+						return {
+							x: b.x + (dx / dist) * pull,
+							y: b.y + (dy / dist) * pull,
+						};
+					});
+				}
+				return E.map((e) => ({ x: e.x, y: e.y }));
+			}
 
-  // Spring update
-  const tgts=getTargets(W,H);
-  for(let i=0;i<3;i++){
-    E[i].vx=(E[i].vx+(tgts[i].x-E[i].x)*STIFF[i])*DAMP;
-    E[i].vy=(E[i].vy+(tgts[i].y-E[i].y)*STIFF[i])*DAMP;
-    E[i].x+=E[i].vx; E[i].y+=E[i].vy;
-    E[i].angle+=0.007+i*.003;
-  }
+			// ─── LOOP ─────────────────────────────────────────────────
+			function loop() {
+				t += 0.016;
+				const W = bgCnv.width,
+					H = bgCnv.height;
+				trail.unshift({ x: mx, y: my });
+				if (trail.length > TRAIL_MAX) trail.pop();
 
-  // Draw elements
-  uiCtx.clearRect(0,0,W,H);
-  const L=showDepth?12:1, D=showDepth?6:0;
-  for(let i=0;i<3;i++)
-    drawLayered(uiCtx,E[i].fn,E[i].x,E[i].y,0.95,L,D,E[i].angle,E[i].hex);
+				// Draw video (mirrored)
+				bgCtx.save();
+				bgCtx.translate(W, 0);
+				bgCtx.scale(-1, 1);
+				if (video.readyState >= 2) {
+					bgCtx.drawImage(video, 0, 0, W, H);
+				} else {
+					bgCtx.fillStyle = "#111";
+					bgCtx.fillRect(0, 0, W, H);
+				}
+				bgCtx.restore();
 
-  // Cursor
-  uiCtx.strokeStyle='rgba(255,255,255,0.7)'; uiCtx.lineWidth=1;
-  const s=11;
-  uiCtx.beginPath(); uiCtx.moveTo(mx-s,my); uiCtx.lineTo(mx+s,my); uiCtx.stroke();
-  uiCtx.beginPath(); uiCtx.moveTo(mx,my-s); uiCtx.lineTo(mx,my+s); uiCtx.stroke();
-  uiCtx.beginPath(); uiCtx.arc(mx,my,3.5,0,Math.PI*2); uiCtx.stroke();
+				// Vignette
+				const gr = bgCtx.createRadialGradient(
+					W / 2,
+					H / 2,
+					H * 0.28,
+					W / 2,
+					H / 2,
+					H * 0.75,
+				);
+				gr.addColorStop(0, "rgba(0,0,0,0)");
+				gr.addColorStop(1, "rgba(0,0,0,0.55)");
+				bgCtx.fillStyle = gr;
+				bgCtx.fillRect(0, 0, W, H);
 
-  requestAnimationFrame(loop);
-}
-loop();
+				// Spring update
+				const tgts = getTargets(W, H);
+				for (let i = 0; i < 3; i++) {
+					E[i].vx =
+						(E[i].vx + (tgts[i].x - E[i].x) * STIFF[i]) * DAMP;
+					E[i].vy =
+						(E[i].vy + (tgts[i].y - E[i].y) * STIFF[i]) * DAMP;
+					E[i].x += E[i].vx;
+					E[i].y += E[i].vy;
+					E[i].angle += 0.007 + i * 0.003;
+				}
 
-// ─── CONTROLS ─────────────────────────────────────────────
-const hints={
-  follow:  'The elements follow your touch directly',
-  trail:   'Chasing your path — move slowly for best effect',
-  orbit:   'The three elements orbit your cursor',
-  scatter: 'Move close to push the elements away',
-  assemble:'Elements form the logo — touch them to pull'
-};
-document.querySelectorAll('.mode-pill').forEach(b=>{
-  b.addEventListener('click',()=>{
-    document.querySelectorAll('.mode-pill').forEach(x=>x.classList.remove('on'));
-    b.classList.add('on'); mode=b.dataset.m;
-    document.getElementById('hint-text').textContent=hints[mode];
-  });
-});
-document.getElementById('depth-btn').addEventListener('click',function(){
-  showDepth=!showDepth; this.textContent='Depth: '+(showDepth?'ON':'OFF');
-});
-document.getElementById('back-btn').addEventListener('click',()=>
-  window.location.href='index.html');
+				// Draw elements
+				uiCtx.clearRect(0, 0, W, H);
+				const L = showDepth ? 12 : 1,
+					D = showDepth ? 6 : 0;
+				for (let i = 0; i < 3; i++)
+					drawLayered(
+						uiCtx,
+						E[i].fn,
+						E[i].x,
+						E[i].y,
+						0.95,
+						L,
+						D,
+						E[i].angle,
+						E[i].hex,
+					);
 
-// ─── CAPTURE ──────────────────────────────────────────────
-let counting=false;
-document.getElementById('cap-btn').addEventListener('click',()=>{
-  if(counting) return; counting=true; let n=3;
-  const el=document.getElementById('cn');
-  const tick=()=>{
-    el.textContent=n; el.classList.add('show');
-    setTimeout(()=>{ el.classList.remove('show'); n--;
-      if(n>0) setTimeout(tick,800); else setTimeout(doCapture,350); },600);
-  };
-  tick();
-});
+				// Cursor
+				uiCtx.strokeStyle = "rgba(255,255,255,0.7)";
+				uiCtx.lineWidth = 1;
+				const s = 11;
+				uiCtx.beginPath();
+				uiCtx.moveTo(mx - s, my);
+				uiCtx.lineTo(mx + s, my);
+				uiCtx.stroke();
+				uiCtx.beginPath();
+				uiCtx.moveTo(mx, my - s);
+				uiCtx.lineTo(mx, my + s);
+				uiCtx.stroke();
+				uiCtx.beginPath();
+				uiCtx.arc(mx, my, 3.5, 0, Math.PI * 2);
+				uiCtx.stroke();
 
-function doCapture(){
-  counting=false;
-  const fl=document.getElementById('flash');
-  fl.classList.add('snap');
-  setTimeout(()=>{ fl.classList.remove('snap'); fl.classList.add('fade');
-    setTimeout(()=>fl.classList.remove('fade'),600); },100);
+				requestAnimationFrame(loop);
+			}
+			loop();
 
-  const out=document.createElement('canvas');
-  out.width=bgCnv.width; out.height=bgCnv.height;
-  const oc=out.getContext('2d');
-  oc.drawImage(bgCnv,0,0); oc.drawImage(uiCnv,0,0);
+			// ─── CONTROLS ─────────────────────────────────────────────
+			const hints = {
+				follow: "The elements follow your hand directly",
+				trail: "Chasing your path — move slowly for best effect",
+				orbit: "The three elements orbit your hand",
+				scatter: "Move close to push the elements away",
+				assemble: "Elements form the logo — point to pull them",
+			};
+			document.querySelectorAll(".mode-pill").forEach((b) => {
+				b.addEventListener("click", () => {
+					document
+						.querySelectorAll(".mode-pill")
+						.forEach((x) => x.classList.remove("on"));
+					b.classList.add("on");
+					mode = b.dataset.m;
+					document.getElementById("hint-text").textContent =
+						hints[mode];
+				});
+			});
+			document
+				.getElementById("depth-btn")
+				.addEventListener("click", function () {
+					showDepth = !showDepth;
+					this.textContent = "Depth: " + (showDepth ? "ON" : "OFF");
+				});
+			document
+				.getElementById("back-btn")
+				.addEventListener(
+					"click",
+					() => (window.location.href = "index.html"),
+				);
 
-  // Stamp
-  oc.fillStyle='rgba(0,0,0,0.55)';
-  oc.fillRect(0,out.height-56,out.width,56);
-  oc.fillStyle='rgba(232,195,64,0.9)';
-  oc.font='bold 13px Space Mono';
-  oc.textAlign='center';
-  oc.fillText('同济大学建校纪念日  ·  THE 120TH ANNIVERSARY OF TONGJI UNIVERSITY',out.width/2,out.height-22);
+			// ─── CAPTURE ──────────────────────────────────────────────
+			let counting = false;
+			document.getElementById("cap-btn").addEventListener("click", () => {
+				if (counting) return;
+				counting = true;
+				let n = 3;
+				const el = document.getElementById("cn");
+				const tick = () => {
+					el.textContent = n;
+					el.classList.add("show");
+					setTimeout(() => {
+						el.classList.remove("show");
+						n--;
+						if (n > 0) setTimeout(tick, 800);
+						else setTimeout(doCapture, 350);
+					}, 600);
+				};
+				tick();
+			});
 
-  const img=out.toDataURL('image/png');
-  document.getElementById('prev-img').src=img;
-  document.getElementById('prev-wrap').classList.add('show');
-  document.getElementById('dl-btn').onclick=()=>{
-    const a=document.createElement('a');
-    a.download=`tongji-120-${Date.now()}.png`;
-    a.href=img; a.click();
-  };
-}
-document.getElementById('close-btn').addEventListener('click',()=>
-  document.getElementById('prev-wrap').classList.remove('show'));
-document.addEventListener('keydown',e=>{
-  if(e.code==='Space') document.getElementById('cap-btn').click();
-  if(e.code==='Escape') document.getElementById('prev-wrap').classList.remove('show');
-});
-</script>
-</body>
+			function doCapture() {
+				counting = false;
+				const fl = document.getElementById("flash");
+				fl.classList.add("snap");
+				setTimeout(() => {
+					fl.classList.remove("snap");
+					fl.classList.add("fade");
+					setTimeout(() => fl.classList.remove("fade"), 600);
+				}, 100);
+
+				const out = document.createElement("canvas");
+				out.width = bgCnv.width;
+				out.height = bgCnv.height;
+				const oc = out.getContext("2d");
+				oc.drawImage(bgCnv, 0, 0);
+				oc.drawImage(uiCnv, 0, 0);
+
+				// Stamp
+				oc.fillStyle = "rgba(0,0,0,0.55)";
+				oc.fillRect(0, out.height - 56, out.width, 56);
+				oc.fillStyle = "rgba(232,195,64,0.9)";
+				oc.font = "bold 13px Space Mono";
+				oc.textAlign = "center";
+				oc.fillText(
+					"同济大学建校纪念日  ·  THE 120TH ANNIVERSARY OF TONGJI UNIVERSITY",
+					out.width / 2,
+					out.height - 22,
+				);
+
+				const img = out.toDataURL("image/png");
+				document.getElementById("prev-img").src = img;
+				document.getElementById("prev-wrap").classList.add("show");
+				document.getElementById("dl-btn").onclick = () => {
+					const a = document.createElement("a");
+					a.download = `tongji-120-${Date.now()}.png`;
+					a.href = img;
+					a.click();
+				};
+			}
+			document
+				.getElementById("close-btn")
+				.addEventListener("click", () =>
+					document
+						.getElementById("prev-wrap")
+						.classList.remove("show"),
+				);
+			document.addEventListener("keydown", (e) => {
+				if (e.code === "Space")
+					document.getElementById("cap-btn").click();
+				if (e.code === "Escape")
+					document
+						.getElementById("prev-wrap")
+						.classList.remove("show");
+			});
+		</script>
+	</body>
 </html>
