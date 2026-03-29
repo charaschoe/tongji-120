@@ -802,34 +802,64 @@
 				assemble: "Elements form the logo — point to pull them",
 				"that-person": "The aura surrounds you continuously",
 			};
+			const hintTextEl = document.getElementById("hint-text");
+			let hintResetTimer = null;
+
+			function showHint(text, temporary = false) {
+				hintTextEl.textContent = text;
+				if (!temporary) return;
+				if (hintResetTimer) clearTimeout(hintResetTimer);
+				hintResetTimer = setTimeout(() => {
+					hintTextEl.textContent =
+						hints[mode] ||
+						"Move your hand to control — then capture";
+					hintResetTimer = null;
+				}, 1700);
+			}
+
+			function setLogoMode(nextLogoMode, syncInteraction = true) {
+				logoMode = nextLogoMode;
+				document.querySelectorAll("[data-logo]").forEach((x) => {
+					x.classList.toggle("on", x.dataset.logo === logoMode);
+				});
+				if (!syncInteraction) return;
+				setInteractionMode(
+					logoMode === "deconstructed" ? "trail" : "follow",
+					false,
+				);
+			}
+
+			function setInteractionMode(nextMode, ensureLogoCompat = true) {
+				mode = nextMode;
+				document.querySelectorAll("[data-m]").forEach((x) => {
+					x.classList.toggle("on", x.dataset.m === mode);
+				});
+				showHint(
+					hints[mode] || "Move your hand to control — then capture",
+				);
+
+				if (
+					ensureLogoCompat &&
+					(mode === "scatter" || mode === "assemble") &&
+					logoMode !== "deconstructed"
+				) {
+					setLogoMode("deconstructed", false);
+					showHint(
+						"Auto: switched logo to Deconstructed for this mode",
+						true,
+					);
+				}
+			}
+
 			document.querySelectorAll("[data-logo]").forEach((b) => {
 				b.addEventListener("click", () => {
-					document
-						.querySelectorAll("[data-logo]")
-						.forEach((x) => x.classList.remove("on"));
-					b.classList.add("on");
-					logoMode = b.dataset.logo;
-					if (logoMode === "deconstructed") {
-						const trailBtn =
-							document.querySelector('[data-m="trail"]');
-						if (trailBtn) trailBtn.click();
-					} else {
-						const followBtn =
-							document.querySelector('[data-m="follow"]');
-						if (followBtn) followBtn.click();
-					}
+					setLogoMode(b.dataset.logo, true);
 				});
 			});
 
 			document.querySelectorAll("[data-m]").forEach((b) => {
 				b.addEventListener("click", () => {
-					document
-						.querySelectorAll("[data-m]")
-						.forEach((x) => x.classList.remove("on"));
-					b.classList.add("on");
-					mode = b.dataset.m;
-					document.getElementById("hint-text").textContent =
-						hints[mode];
+					setInteractionMode(b.dataset.m, true);
 				});
 			});
 			document
