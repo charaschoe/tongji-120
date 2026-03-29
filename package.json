@@ -1,10 +1,13 @@
 {
   "name": "files",
   "version": "1.0.0",
-  "description": "",
+  "description": "Interactive motion design tools for Tongji University's 120th anniversary.",
   "main": "check_syntax.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "python3 -m http.server 3000",
+    "start": "python3 -m http.server 3000",
+    "syntax-check": "node check_syntax.js",
+    "test": "echo \"No automated tests configured\""
   },
   "repository": {
     "type": "git",
