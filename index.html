@@ -40,6 +40,7 @@
 				display: flex;
 				flex-direction: column;
 				overflow-x: hidden;
+				overflow-y: auto;
 				cursor: none;
 			}
 
@@ -203,7 +204,7 @@
 			.cards {
 				display: grid;
 				grid-template-columns: 1fr 1fr;
-				flex: 1;
+				min-height: 420px;
 			}
 			.card {
 				padding: 48px;
@@ -215,7 +216,7 @@
 				color: inherit;
 				transition: background 0.2s;
 				position: relative;
-				overflow: hidden;
+				overflow: visible;
 			}
 			.card:last-child {
 				border-right: none;
@@ -406,7 +407,7 @@
 						/>
 					</svg>
 				</div>
-				<div class="sub">同济大学建校纪念日<br />Tongji University</div>
+				<div class="sub">Tongji University Anniversary<br />Tongji University</div>
 			</div>
 			<div class="header-right">
 				Interactive Installations<br />
