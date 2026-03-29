@@ -104,8 +104,8 @@ Then open:
 2. Import the repository in Vercel.
 3. Keep defaults:
     - Framework Preset: `Other`
-    - Build Command: *(none)*
-    - Output Directory: *(root)*
+    - Build Command: _(none)_
+    - Output Directory: _(root)_
 4. Deploy.
 
 Notes:
