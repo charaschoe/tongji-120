@@ -371,7 +371,8 @@
 							if (!point || point.length < 2) return;
 							const px = point[0];
 							const py = point[1];
-							if (!Number.isFinite(px) || !Number.isFinite(py)) return;
+							if (!Number.isFinite(px) || !Number.isFinite(py))
+								return;
 
 							// Map to canvas
 							let mappedX =

@@ -1,23 +1,23 @@
 {
-  "name": "files",
-  "version": "1.0.0",
-  "description": "Interactive motion design tools for Tongji University's 120th anniversary.",
-  "main": "check_syntax.js",
-  "scripts": {
-    "dev": "python3 -m http.server 3000",
-    "start": "python3 -m http.server 3000",
-    "syntax-check": "node check_syntax.js",
-    "test": "echo \"No automated tests configured\""
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/charaschoe/tongji-120.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/charaschoe/tongji-120/issues"
-  },
-  "homepage": "https://github.com/charaschoe/tongji-120#readme"
+	"name": "files",
+	"version": "1.0.0",
+	"description": "Interactive motion design tools for Tongji University's 120th anniversary.",
+	"main": "check_syntax.js",
+	"scripts": {
+		"dev": "python3 -m http.server 3000",
+		"start": "python3 -m http.server 3000",
+		"syntax-check": "node check_syntax.js",
+		"test": "echo \"No automated tests configured\""
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/charaschoe/tongji-120.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/charaschoe/tongji-120/issues"
+	},
+	"homepage": "https://github.com/charaschoe/tongji-120#readme"
 }

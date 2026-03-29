@@ -31,11 +31,11 @@ The same shapes are used across all tools in both:
 
 - Layered/extruded rendering of logo glyphs
 - Adjustable parameters:
-  - Rotation speed
-  - Layer count
-  - Depth
-  - Scale
-  - Tilt
+    - Rotation speed
+    - Layer count
+    - Depth
+    - Scale
+    - Tilt
 - Multiple color modes (`brand`, `rainbow`, `neon`, `mono`, `cmyk`)
 - Background presets
 - PNG export
@@ -47,12 +47,12 @@ The same shapes are used across all tools in both:
 - ML5 `handpose` tracking for interaction
 - ML5 `poseNet` body anchor logic for person-centric modes
 - Interaction modes:
-  - `Follow`
-  - `Trail`
-  - `Orbit`
-  - `Scatter`
-  - `Assemble`
-  - `That Person`
+    - `Follow`
+    - `Trail`
+    - `Orbit`
+    - `Scatter`
+    - `Assemble`
+    - `That Person`
 - `Unified` and `Deconstructed` logo modes
 - Countdown capture flow
 - PNG download of composited frame
@@ -95,6 +95,40 @@ Then open:
 - `npm run dev` : Start local static server (`python3 -m http.server 3000`)
 - `npm run start` : Same as `dev`
 - `npm run syntax-check` : Run inline script syntax checks via `check_syntax.js`
+
+## Deployment
+
+### Option 1: Vercel (Recommended)
+
+1. Push your latest `main` branch to GitHub.
+2. Import the repository in Vercel.
+3. Keep defaults:
+    - Framework Preset: `Other`
+    - Build Command: *(none)*
+    - Output Directory: *(root)*
+4. Deploy.
+
+Notes:
+
+- This project is static HTML/CSS/JS, so no build step is required.
+- Camera features in the Photo Booth require HTTPS in production (Vercel provides this by default).
+
+### Option 2: GitHub Pages
+
+1. Open repository `Settings` -> `Pages`.
+2. Under `Build and deployment`, set:
+    - Source: `Deploy from a branch`
+    - Branch: `main` and folder `/ (root)`
+3. Save and wait for Pages to publish.
+
+Your site will be available at:
+
+- `https://<your-username>.github.io/tongji-120/`
+
+Notes:
+
+- Camera APIs also require HTTPS on GitHub Pages.
+- Use relative paths (already used in this project) so links between pages work correctly.
 
 ## Exhibition Notes
 
